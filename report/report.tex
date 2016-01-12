@@ -1,0 +1,643 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\usepackage{geometry}
+\geometry{
+a4paper,
+total={210mm,297mm},
+left=25mm,
+right=25mm,
+top=30mm,
+bottom=30mm,
+}
+
+%%%%%%%%%%%%%%%%%for the header%%%%%%%%%%%%%%
+\usepackage{fancyhdr}% http://ctan.org/pkg/fancyhdr
+\pagestyle{fancy}% Change page style to fancy
+\fancyhf{}% Clear header/footer
+\fancyhead[C]{Haibo Jin \hspace{20mm} haibo.nick.jin@gmail.com \hspace{20mm} 014343698}
+% add page number on the foot
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}% Default \headrulewidth is 0.4pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% for subfigure
+\usepackage{subcaption}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+
+{\Large Assignment}\\[1cm]
+
+% Title
+\HRule \\[0.4cm]
+{ \huge Computational Statistics 2015\\[0.4cm] }
+
+\HRule \\[7.5cm]
+
+{\LARGE Haibo Jin}\\[0.4cm]
+
+{\LARGE haibo.nick.jin@gmail.com}\\[0.4cm]
+
+{\LARGE 014343698}\\[4cm]
+
+{\Large University of Helsinki}\\[0.1cm]
+{\Large Department of Computer Science}\\[0.1cm]
+{\Large Master Student}\\[0.1cm]
+
+\end{center}
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textbf{Problem 1:} Derive the maximum likelihood estimator of $\alpha$ and $\beta$. Identify the full conditionals $p(\alpha | \beta, y)$ and $p(\beta | \alpha, y)$. Do they correspond to familiar distributions?
+
+\vspace{5mm}
+
+\textbf{Answer:} The likelihood function is
+
+\begin{equation*}
+f(y_{1}, y_{2},...,y_{n} | \alpha, \beta) = \prod_{i=1}^n f(y_i | \alpha, \beta)
+\end{equation*}
+
+So the log-likelihood function is 
+
+\begin{equation}
+\begin{split}
+\text{log} f(y_{1}, y_{2},...,y_{n} | \alpha, \beta) &= \sum_{i=1}^n \text{log} f(y_i | \alpha, \beta) \\
+&= \sum_{i=1}^n \text{log} ( \frac{\beta^{\alpha}}{\Gamma(\alpha)}y_i^{\alpha-1}\text{exp}\{-\beta y_i\} ) \\
+&= \sum_{i=1}^n \alpha \text{log} \beta - \text{log} \Gamma(\alpha) + (\alpha-1)\text{log}y_i - \beta y_i \\
+&= n \alpha \text{log} \beta - n \text{log} \Gamma(\alpha) + \sum_{i=1}^n (\alpha-1)\text{log}y_i-\beta y_i\\
+\end{split}
+\end{equation}
+
+Take the derivative of the log-likelihood with respect to $\beta$, and set it to zero
+
+\begin{equation*}
+\frac{d}{d \beta} \text{log} f(y_{1}, y_{2},...,y_{n} | \alpha, \beta) = \frac{n\alpha}{\beta} - \sum_{i=1}^n y_i = 0
+\end{equation*}
+
+We get the maximum likelihood estimation of $\beta$: 
+
+\begin{equation}
+\beta_{MLE} = \frac{n\alpha}{\sum_{i=1}^n y_i}
+\end{equation}
+
+which depends on $\alpha$. By substituting equation (2) to equation (1), we get 
+
+\begin{equation}
+\text{log} f(y_{1}, y_{2},...,y_{n} | \alpha, \beta) = n\alpha \text{log}\frac{n\alpha}{\sum_{i=1}^n y_i} - n\text{log}\Gamma(\alpha) + (\alpha-1)\sum_{i=1}^n \text{log}y_i - n\alpha
+\end{equation} 
+
+Take the derivative of equation (3) with respect to $\alpha$, and set it to zero
+
+\begin{equation*}
+\begin{split}
+\frac{d}{d \alpha} \text{log} f(y_{1}, y_{2},...,y_{n} | \alpha, \beta) &= n\text{log}\frac{n\alpha}{\sum_{i=1}^n y_i} + n\alpha\frac{n}{\sum_{i=1}^n y_i}\frac{\sum_{i=1}^n y_i}{n\alpha} - n\psi(\alpha) + 
+\sum_{i=1}^n \text{log} y_i - n \\
+&= n\text{log}\frac{n\alpha}{\sum_{i=1}^n y_i} + n - n\psi(\alpha) + \sum_{i=1}^n \text{log} y_i - n \\
+&= n\text{log}\frac{n\alpha}{\sum_{i=1}^n y_i} - n\psi(\alpha) + \sum_{i=1}^n \text{log} y_i = 0 \\
+\end{split}
+\end{equation*}
+
+where $\psi(\alpha)$ is the digamma function of $\alpha$. There is no analytical solution for this equation, we can use numerical method to get an approximate of $\alpha$. Assuming we already get $\alpha_{MLE}$, we then substitute it to equation (2), we get $\beta_{MLE} = \frac{n\alpha_{MLE}}{\sum_{i=1}^n y_i}$.
+
+The full conditional $p(\alpha | \beta, y_1,...,y_n)$ is propotional to the joint $p(\alpha, \beta, y_1,...,y_n)$:
+
+\begin{equation*}
+\begin{split}
+p(\alpha | \beta, y_1,...,y_n) &\propto p(\alpha, \beta, y_1,...,y_n) = p(\alpha)p(\beta)p(y_1,...,y_n|\alpha,\beta) \\
+&= \lambda \text{exp}\{-\lambda \alpha\} \lambda \text{exp}\{-\lambda \beta\}\prod_{i=1}^n \frac{\beta^{\alpha}}{\Gamma(\alpha)}y_i^{\alpha-1}\text{exp}\{-\beta y_i\} \\
+&\propto \text{exp}\{-\lambda\alpha\}\frac{\beta^{n\alpha}}{\Gamma(\alpha)^n}(\prod_{i=1}^n y_i)^{\alpha-1} \\
+\end{split}
+\end{equation*}
+
+So $p(\alpha | \beta, y_1,...,y_n)$ does not give a familiar distribution.
+
+The full conditional $p(\beta | \alpha, y_1,...,y_n)$ is also propotional to the joint $p(\alpha, \beta, y_1,...,y_n)$:
+
+\begin{equation}
+\begin{split}
+p(\beta | \alpha, y_1,...,y_n) &\propto p(\alpha, \beta, y_1,...,y_n) = p(\alpha)p(\beta)p(y_1,...,y_n|\alpha,\beta) \\
+&= \lambda exp\{-\lambda \alpha\} \lambda exp\{-\lambda \beta\}\prod_{i=1}^n \frac{\beta^{\alpha}}{\Gamma(\alpha)}y_i^{\alpha-1}exp\{-\beta y_i\} \\
+&\propto exp\{-\lambda \beta\} \prod_{i=1}^n \beta^{\alpha} exp\{-\beta y_i\}\\
+&= \beta^{n \alpha} exp\{-(\lambda+\sum_{i=1}^n y_i)\beta \} \\
+&= Gamma(n\alpha+1, \lambda+\sum_{i=1}^n y_i) \\
+\end{split}
+\end{equation}
+
+So $p(\beta | \alpha, y_1,...,y_n)$ is actually a Gamma distribution.
+
+\vspace{10mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textbf{Problem 2:} Implement a random walk Metropolis-Hastings sampler for the constrained parameters $\alpha, \beta$ > $0$. Immediately reject proposed values if they are not both positive. Select the covariance matrix $a\Sigma$ of the proposal distribution so that the acceptance rate becomes reasonable (10-40\%). Report posterior summary statistics and numerical standard errors, produce trace, autocorrelation and cumulative average plots for the parameters $(\alpha, \beta)$ and explain how you calibrated the tuning constant $a$.
+
+\vspace{5mm}
+
+\textbf{Answer:} The posterior distribution is
+
+\begin{equation}
+\begin{split}
+p(\alpha, \beta | y_1,...,y_n) &\propto p(\alpha, \beta, y_1,...,y_n) = p(\alpha)p(\beta)p(y_1,...,y_n|\alpha,\beta) \\
+&= \lambda \text{exp}\{-\lambda \alpha\} \lambda \text{exp}\{-\lambda \beta\}\prod_{i=1}^n \frac{\beta^{\alpha}}{\Gamma(\alpha)}y_i^{\alpha-1}\text{exp}\{-\beta y_i\} \\
+&\propto \text{exp}\{-\lambda(\alpha+\beta)\}\frac{\beta^{n\alpha}}{\Gamma(\alpha)^n}(\prod_{i=1}^n y_i)^{\alpha-1} \text{exp}\{-\beta \sum_{i=1}^n y_i\} \\
+\end{split}
+\end{equation}
+
+So the log-posterior distribution is 
+
+\begin{equation}
+\begin{split}
+\text{log} p(\alpha, \beta | y_1,...,y_n) \propto -\lambda (\alpha+\beta)+n\alpha \text{log}\beta - n\text{log} \Gamma(\alpha) + (\alpha-1)\sum_{i=1}^n \text{log}y_i - \beta \sum_{i=1}^n y_i
+\end{split}
+\end{equation}
+
+For the covariance matrix $a\Sigma$ of the proposal distribution, we usually set $\Sigma$ to be an approximation of the posterior covariance matrix. I use normal approximation to estimate the posterior covariance matrix. Firstly, I use grid method to get the mode of the posterior: $\hat{\alpha} = 6.9$, $\hat{\beta} = 9.4$ (see details in the script \textit{HaiboJin\_code2\_COMPSTAT2015.R}). Then I calculate the Hessian matrix of the log-posterior: 
+\begin{equation*}
+H(\alpha, \beta) = 
+\begin{bmatrix}
+-n\psi_1(\alpha) & \frac{n}{\beta} \\ 
+\frac{n}{\beta} & -\frac{n\alpha}{\beta^2}
+\end{bmatrix}
+\end{equation*}
+
+where $\psi_1(\alpha)$ is the trigamma function of $\alpha$. By evaluating $H(\alpha, \beta)$ at the mode, we get 
+$H(\hat{\alpha}, \hat{\beta}) = $
+$\begin{bmatrix}
+-7.8&5.32 \\ 5.32&-3.9
+\end{bmatrix}$. So we get the approximation of the posterior covariance matrix as the inverse of the negative Hessian evaluating at the mode, 
+$\Sigma = $
+$\begin{bmatrix}
+1.82&2.48 \\ 2.48&3.63
+\end{bmatrix}$.
+
+The number of samples is $10000$, and the initial value of $\alpha$ and $\beta$ is $(3,3)$.
+
+I use \textit{acceptance rate} as the measure to calibrate $a$. In this case, it is not straightforward to calculate the average of the acceptance probabilities because the proposal can be negative which is not possible to evaluate its acceptance probability. So I simply set the \textit{acceptance rate} to be the ratio of the number of accepted proposals to the total number of proposals. Since a reasonable acceptance rate is 10-40\%, I tried a series of values of $a$ with a broad range. Table 1 shows different values of tuning constant $a$ and its acceptance rate. According to the table, $a$ between $2$ and $20$ gives a reasonable acceptance rate. For the later calculations, I choose to fix $a$ to $5$ because of its moderate and reasonable acceptance rate.
+
+\begin{table}[H]
+\centering
+\caption{Different values of tuning constant $a$ and its acceptance rate for problem 2.}
+\label{my-label}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+a               & 0.1    & 1      & 2      & 5      & 10     & 20    & 50    \\ \hline
+acceptance rate & 84.3\% & 56.3\% & 42.7\% & 25.5\% & 16.6\% & 8.7\% & 3.7\% \\ \hline
+\end{tabular}
+\end{table}
+
+Figure 1 gives the trace plots of $\alpha$ and $\beta$. We can see that both the chains start to mix well in the begining, so I just ignore the burn-in and retain all the samples.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p2_trace_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p2_trace_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Trace plots of $\alpha$ and $\beta$ for problem 2.}
+\end{figure}
+
+Table 2 gives the posterior summary statistics, with $a$ being $5$.
+
+\begin{table}[H]
+\centering
+\caption{Posterior summary statistics for problem 2.}
+\label{my-label}
+\begin{tabular}{|c|c|c|}
+\hline
+             & alpha  & beta   \\ \hline
+Minimum      & 3.000  & 3.000  \\ \hline
+1st Quartile & 6.300  & 8.574  \\ \hline
+Median       & 7.161  & 9.774  \\ \hline
+Mean         & 7.258  & 9.904  \\ \hline
+3rd Quartile & 8.125  & 11.169 \\ \hline
+Maximum      & 12.112 & 16.403 \\ \hline
+\end{tabular}
+\end{table}
+
+The standard error of $\alpha$ and $\beta$ are $0.015$ and $0.021$, respectively. Equation (7) gives the formula I use for calculating standard error
+
+\begin{equation}
+\text{SE} = \frac{s}{\sqrt{n}}
+\end{equation}
+
+where $s$ is the standard deviation of samples and $n$ is the number of samples.
+
+Figure 2 shows the autocorrelation plots of $\alpha$ and $\beta$.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p2_acf_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p2_acf_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Autocorrelation plots of $\alpha$ and $\beta$ for problem 2.}
+\end{figure}
+
+Figure 3 shows the cumulative average plots of $\alpha$ and $\beta$.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p2_cum_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p2_cum_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Cumulative average plots of $\alpha$ and $\beta$ for problem 2.}
+\end{figure}
+
+\vspace{10mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textbf{Problem 3:} Consider the following change-of-variables 
+
+\begin{equation*}
+\begin{bmatrix}
+\phi \\ 
+\psi
+\end{bmatrix} = \text{g}(\alpha, \beta) = 
+\begin{bmatrix} 
+\text{log} \alpha \\
+\text{log}(\alpha / \beta)
+\end{bmatrix}
+\end{equation*}
+
+where $\mu = \alpha / \beta$ is the expected value of a random variable that follows a Gamma $(\alpha, \beta)$ distribution. Show that $\alpha, \mu$ and therefore $(\phi, \psi)$ are orthogonal parameters by demonstrating that the expected Fisher information matrix $I(\alpha, \mu)$ is diagonal.
+
+Implement a random walk Metropolis-Hastings sampler for the unconstrained parameters $(\phi, \psi)$. Select the covariance matrix $a\Sigma$ of the proposal distribution so that the acceptance rate becomes reasonable (10-40\%). Report posterior summary statistics and numerical standard errors, produce trace, autocorrelation and cumulative average plots for the original parameters $(\alpha, \beta)$ and explain how you calibrated the tuning constant $a$.
+
+\vspace{5mm}
+
+\textbf{Answer:} The original parameters are $(\alpha,\beta)$ with Gamma distribution being its likelihood:
+
+\begin{equation*}
+Gamma(y|\alpha,\beta) = \frac{\beta^{\alpha}}{\Gamma(\alpha)}y^{\alpha-1}\text{exp}\{ -\beta y \}
+\end{equation*}
+
+We change variables with the following function 
+
+\begin{equation}
+\begin{bmatrix}
+\alpha \\ 
+\mu
+\end{bmatrix} = \text{g}(\alpha, \beta) = 
+\begin{bmatrix} 
+\alpha \\
+\alpha / \beta
+\end{bmatrix}
+\end{equation}
+
+So the new likelihood function becomes
+
+\begin{equation*}
+p(y|\alpha,\mu) = Gamma(y|\alpha,\frac{\alpha}{\mu}) = \frac{(\frac{\alpha}{\mu})^{\alpha}}{\Gamma(\alpha)}y^{\alpha-1}\text{exp}\{ -\frac{\alpha}{\mu} y \}
+\end{equation*}
+
+And the log-likelihood is
+
+\begin{equation}
+\text{log}p(y|\alpha,\mu) = \alpha \text{log}\frac{\alpha}{\mu}-\text{log}\Gamma(\alpha)+(\alpha-1)\text{log}y-\frac{\alpha}{\mu}y
+\end{equation}
+
+If two parameters $\theta_i$ and $\theta_j$ are orthogonal, then the element of the $i$th row and $j$th column of the expected Fisher information matrix is zero. The element of the $i$th row and $j$th column of the expected Fisher information matrix is defined as follows
+
+\begin{equation}
+(I(\theta))_{i,j} = - E \left[ \frac{d^2}{d\theta_i d\theta_j}\text{log}f(Y|\theta) \right]
+\end{equation}
+
+where the parameter $\theta$ is $(\alpha, \mu)$ in our case. To get the expected Fisher information matrix, we first take derivative of equation (9) with respect to $\alpha$
+
+\begin{equation}
+\frac{d}{d\alpha}\text{log}p(y|\alpha,\mu)=\text{log}\frac{\alpha}{\mu}+1-\psi(\alpha)+\text{log}y-\frac{y}{\mu}
+\end{equation}
+
+where $\psi(\alpha)$ is the digamma function of $\alpha$. Then we can get the element of first row, first column of Fisher information matrix by taking derivative of equation (11) with respect to $\alpha$
+
+\begin{equation}
+\frac{d^2}{d\alpha^2}\text{log}p(y|\alpha,\mu)=\frac{1}{\alpha}-\psi_1(\alpha)
+\end{equation}
+
+where $\psi_1(\alpha)$ is the trigamma function of $\alpha$. To get the element of first row, second column as well as second row, first column, we take derivative of equation (11) with respect to $\mu$
+
+\begin{equation}
+\frac{d^2}{d\alpha d\mu}\text{log}p(y|\alpha,\mu)=-\frac{1}{\mu}+\frac{y}{\mu^2}
+\end{equation}
+
+Finally, we take the second derivative of equation (9) with respect to $\mu$ to get the element of second row, second column
+
+\begin{equation}
+\frac{d^2}{d\mu^2}\text{log}p(y|\alpha,\mu)=\frac{\alpha}{\mu^2}-\frac{2\alpha}{\mu^3}y
+\end{equation}
+
+So the expected Fisher information matrix is 
+
+\begin{equation}
+I(\alpha,\mu) = -E
+\begin{bmatrix}
+\frac{1}{\alpha}-\psi_1(\alpha) & -\frac{1}{\mu}+\frac{y}{\mu^2} \\ 
+-\frac{1}{\mu}+\frac{y}{\mu^2} & \frac{\alpha}{\mu^2}-\frac{2\alpha}{\mu^3}y
+\end{bmatrix}
+\end{equation}
+
+Notice that $E[y]=\mu$, so we simplify the matrix to the following
+
+\begin{equation}
+I(\alpha,\mu) = -
+\begin{bmatrix}
+\frac{1}{\alpha}-\psi_1(\alpha) & 0 \\ 
+0 & -\frac{\alpha}{\mu^2}
+\end{bmatrix} = 
+\begin{bmatrix}
+-\frac{1}{\alpha}+\psi_1(\alpha) & 0 \\ 
+0 & \frac{\alpha}{\mu^2}
+\end{bmatrix}
+\end{equation}
+
+Since the elements on the non-diagonal are zero, the parameters $(\alpha,\mu)$ and therefore $(\phi,\psi)$ are orthogonal.
+
+Now we make change-of-variables as follows
+
+\begin{equation}
+\begin{bmatrix}
+\phi \\ 
+\psi
+\end{bmatrix} = \text{g}(\alpha, \beta) = 
+\begin{bmatrix} 
+\text{log} \alpha \\
+\text{log}(\alpha / \beta)
+\end{bmatrix}
+\end{equation}
+
+So the inverse function is 
+
+\begin{equation}
+\begin{bmatrix}
+\alpha \\ 
+\beta
+\end{bmatrix} = \text{h}(\phi, \psi) = 
+\begin{bmatrix} 
+e^{\phi} \\
+e^{\phi-\psi}
+\end{bmatrix}
+\end{equation}
+
+The Jecobian determinant of function $h$ is 
+
+\begin{equation*}
+J_h=\text{det}
+\begin{bmatrix}
+e^{\phi} & 0 \\ 
+e^{\phi-\psi} & -e^{\phi-\psi}
+\end{bmatrix}
+= -e^{2\phi-\psi}
+\end{equation*}
+
+Then the posterior of $(\phi,\psi)$ is
+
+\begin{equation*}
+p(\phi,\psi|y_1,...,y_n) = p(\alpha,\beta|y_1,...,y_n)|J_h|
+\end{equation*}
+
+We can just write down the log-posterior:
+\begin{equation}
+\begin{split}
+\text{log}p(\phi,\psi|y_1,...,y_n) &= \text{log}p(\alpha,\beta|y_1,...,y_n) + \text{log}|J_h| \\
+&= \text{log}p(\alpha,\frac{\alpha}{\mu}|y_1,...,y_n) + \text{log}|J_h| \\
+&= -\lambda(e^{\phi}+e^{\phi-\psi})+ne^{\phi}(\phi-\psi)-n\text{log}\Gamma(e^{\phi}) \\
+& +(e^{\phi}-1) \sum_{i=1}^n \text{log}y_i - e^{\phi-\psi}\sum_{i=1}^n y_i + 2\phi-\psi \\
+\end{split}
+\end{equation}
+
+After change-of-variables, the posterior seems a little complicated, which requires more work to get a normal approximation. Luckily, we have demonstrated that $\phi$ and $\psi$ are orthogonal, so the posterior covariance matrix $\Sigma$ is a diagonal matrix. I simply assume $\Sigma=
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}$, and it forms the covariance matrix of the proposal $a\Sigma$, where $a$ is the tuning constant. 
+
+The number of samples is again $10000$, and the initial value of $\phi$ and $\psi$ is $(1,1)$.
+
+I use \textit{acceptance rate} as the measure to calibrate $a$. In order to be consistent to problem 2, I also define the \textit{acceptance rate} here to be the ratio of the number of accepted proposals to the total number of proposals. Since a reasonable acceptance rate is 10-40\%, I tried a series of values of $a$ with a broad range. Table 3 shows different values of tuning constant $a$ and its acceptance rate. According to the table, $a$ between $0.02$ and $0.2$ gives a reasonable acceptance rate. For the later calculations, I choose to fix $a$ to $0.1$.
+
+\begin{table}[H]
+\centering
+\caption{Different values of tuning constant $a$ and its acceptance rate for problem 3.}
+\label{my-label}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+a               & 0.001    & 0.01      & 0.02      & 0.1      & 0.2     & 0.5   \\ \hline
+acceptance rate & 79.5\% & 46.6\% & 34.9\% & 13.5\% & 8.3\% & 3.7\%  \\ \hline
+\end{tabular}
+\end{table}
+
+Figure 4 gives the trace plots of $\alpha$ and $\beta$. We can see that both the chains start to mix well in the begining, so I just ignore the burn-in and retain all the samples.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p3_trace_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p3_trace_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Trace plots of $\alpha$ and $\beta$ for problem 3.}
+\end{figure}
+
+Table 4 gives the posterior summary statistics, with $a$ being $0.1$.
+
+\begin{table}[H]
+\centering
+\caption{Posterior summary statistics for problem 3.}
+\label{my-label}
+\begin{tabular}{|c|c|c|}
+\hline
+             & alpha  & beta   \\ \hline
+Minimum      & 1.999  & 0.796  \\ \hline
+1st Quartile & 6.226  & 8.475  \\ \hline
+Median       & 7.154  & 9.756  \\ \hline
+Mean         & 7.254  & 9.893  \\ \hline
+3rd Quartile & 8.161  & 11.110 \\ \hline
+Maximum      & 12.975 & 18.206 \\ \hline
+\end{tabular}
+\end{table}
+
+Through equation (7), I get the standard error of $\alpha$ and $\beta$ are $0.014$ and $0.020$, respectively. 
+
+Figure 5 shows the autocorrelation plots of $\alpha$ and $\beta$.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p3_acf_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p3_acf_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Autocorrelation plots of $\alpha$ and $\beta$ for problem 3.}
+\end{figure}
+
+Figure 6 shows the cumulative average plots of $\alpha$ and $\beta$.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p3_cum_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p3_cum_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Cumulative average plots of $\alpha$ and $\beta$ for problem 3.}
+\end{figure}
+
+\vspace{10mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textbf{Problem 4:} Implement a hybrid sampler by taking advantage of conditional conjugacy. Update $\phi = \text{g}(\alpha) = \text{log} \alpha$ with a random walk Metropolis-Hasting step and $\beta$ by drawing from its full conditional distribution conditionally on the proposed value of $\alpha$. Accept or reject the proposed pair jointly by using the ordinary Metropolis-Hastings acceptance rule. Tune the proposal distribution so that the acceptance rate becomes reasonable (10-40\%). Report posterior summary statistics and numerical standard errors, produce trace, autocorrelation and cumulative average plots for the parameters  $(\alpha, \beta)$ and explain how you calibrated the tuning constant.
+
+\vspace{5mm}
+
+\textbf{Answer:} For the previous two problems, the proposal distributions are symmetric, thus the MH ratio is simply $r=\frac{\pi(\theta^{\prime})}{\pi(\theta)}$ where $\pi$ denotes the target posterior. In this problem, the proposal is not symmetric, so the MH ratio is
+
+\begin{equation}
+r = \frac{\pi(\theta^{\prime})q(\theta|\theta^{\prime})}{\pi(\theta)q(\theta^{\prime}|\theta)}
+\end{equation} 
+
+where $q$ denotes the proposal distribution. In our case, the specific proposal distribution $q(\theta^{\prime}|\theta)$ is
+
+\begin{equation}
+q(\alpha^{\prime},\beta^{\prime}|\alpha,\beta)=N(\text{log}\alpha^{\prime}|\text{log}\alpha,\sigma^2)Gamma(\beta^{\prime}|n\alpha^{\prime}+1, \lambda+\sum_{i=1}^n y_i)
+\end{equation}
+
+where $N$ denotes normal distribution, $\text{log}\alpha^{\prime}$ and $\text{log}\alpha$ is just $\phi^{\prime}$ and $\phi$, and the conditional Gamma is from equation (4).
+
+Similarly, we can get $q(\theta|\theta^{\prime})$  
+
+\begin{equation}
+q(\alpha,\beta|\alpha^{\prime},\beta^{\prime})=N(\text{log}\alpha|\text{log}\alpha^{\prime},\sigma^2)Gamma(\beta|n\alpha+1, \lambda+\sum_{i=1}^n y_i)
+\end{equation}
+
+Because $N(\text{log}\alpha^{\prime}|\text{log}\alpha,\sigma^2)=N(\text{log}\alpha|\text{log}\alpha^{\prime},\sigma^2)$, so we can cancel them and simplify the MH ratio to the following equation
+
+\begin{equation}
+r = \frac{\pi(\theta^{\prime})Gamma(\beta|n\alpha+1, \lambda+\sum_{i=1}^n y_i)}{\pi(\theta)Gamma(\beta^{\prime}|n\alpha^{\prime}+1, \lambda+\sum_{i=1}^n y_i)}
+\end{equation} 
+
+where the posterior $\pi$ is still the same as equation (5) in problem 2.
+
+In this problem, the random walk is on just one dimension, so its variance $a\sigma^2$ becomes a scalar. So I simply set $\sigma^2=1$.
+
+Again, the number of samples is $10000$, and the initial value of $\phi$ and $\psi$ is $(1,1)$.
+
+Same to the previous, I use \textit{acceptance rate} as the measure to calibrate $a$, and it is defined as the ratio of the number of accepted proposals to the total number of proposals. Since a reasonable acceptance rate is 10-40\%, I tried a series of values of $a$ with a broad range. Table 5 shows different values of tuning constant $a$ and its acceptance rate. According to the table, $a$ between $0.5$ and $2$ gives a reasonable acceptance rate. For the later calculations, I choose to fix $a$ to $1$.
+
+\begin{table}[H]
+\centering
+\caption{Different values of tuning constant $a$ and its acceptance rate for problem 4.}
+\label{my-label}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+a               & 0.1    & 0.5      & 1      & 2      & 5   \\ \hline
+acceptance rate & 84.1\% & 42.5\% & 23.5\% & 12.4\% & 4.8\%   \\ \hline
+\end{tabular}
+\end{table}
+
+Figure 7 gives the trace plots of $\alpha$ and $\beta$. We can see that both the chains start to mix well in the begining, so I just ignore the burn-in and retain all the samples.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p4_trace_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p4_trace_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Trace plots of $\alpha$ and $\beta$ for problem 4.}
+\end{figure}
+
+Table 6 gives the posterior summary statistics, with $a$ being $1$.
+
+\begin{table}[H]
+\centering
+\caption{Posterior summary statistics for problem 4.}
+\label{my-label}
+\begin{tabular}{|c|c|c|}
+\hline
+             & alpha  & beta   \\ \hline
+Minimum      & 2.629  & 1.000  \\ \hline
+1st Quartile & 6.027  & 8.194  \\ \hline
+Median       & 6.931  & 9.412  \\ \hline
+Mean         & 7.014  & 9.541  \\ \hline
+3rd Quartile & 7.932  & 10.790 \\ \hline
+Maximum      & 13.105 & 18.130 \\ \hline
+\end{tabular}
+\end{table}
+
+Through equation (7), I get the standard error of $\alpha$ and $\beta$ are $0.014$ and $0.020$, respectively. 
+
+Figure 8 shows the autocorrelation plots of $\alpha$ and $\beta$.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p4_acf_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p4_acf_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Autocorrelation plots of $\alpha$ and $\beta$ for problem 4.}
+\end{figure}
+
+Figure 9 shows the cumulative average plots of $\alpha$ and $\beta$.
+
+\begin{figure}[H]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p4_cum_alpha.png}
+%  \caption{1a}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/p4_cum_beta.png}
+%  \caption{1b}
+\end{subfigure}
+\caption{Cumulative average plots of $\alpha$ and $\beta$ for problem 4.}
+\end{figure}
+
+\vspace{10mm}
+\end{document}
